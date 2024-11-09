@@ -28,6 +28,6 @@ ROM CRC32: 821FEB7A
 
 Ikki (C) 1985 Sunsoft (Sun Electronics Corp.) This project is purely for demonstration and educational purposes.
 
-There is prior work from OffGao, who has a video showcasing a hacked version of Ikki running on the FDS: https://www.nicovideo.jp/watch/sm9020475
-Mesen (https://www.mesen.ca/) was used for its excellent debugging tools.
-Hardware testing was done using a Sharp Twin Famicom with the [FDSKey](https://github.com/ClusterM/fdskey).
+- There is prior work from OffGao, who has a video showcasing a hacked version of Ikki running on the FDS: https://www.nicovideo.jp/watch/sm9020475
+- Mesen (https://www.mesen.ca/) was used for its excellent debugging tools.
+- Hardware testing was done using a Sharp Twin Famicom with the [FDSKey](https://github.com/ClusterM/fdskey).
