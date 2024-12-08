@@ -12,5 +12,5 @@ $(OUTPUT):
 .PHONY: clean
 
 clean:
-	rm -f *.lst $(OUTPUT) *.nl *.mlb
+	rm -f *.lst $(OUTPUT) *.nl *.mlb *.cdl
 
