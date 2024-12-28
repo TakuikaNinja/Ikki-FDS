@@ -48,10 +48,10 @@ FixPointers:
 		rts
 
 Pointers_Lo:
-	.db <$824e, <$827f, <$8565, <$8859, <$885f, <$a14e, <$a214, <$a228, <$a22e, <$a233, <$a5cc
+	.dl $824e, $827f, $8565, $8859, $885f, $a14e, $a214, $a228, $a22e, $a233, $a5cc
 
 Pointers_Hi:
-	.db >$824e, >$827f, >$8565, >$8859, >$885f, >$a14e, >$a214, >$a228, >$a22e, >$a233, >$a5cc
+	.dh $824e, $827f, $8565, $8859, $885f, $a14e, $a214, $a228, $a22e, $a233, $a5cc
 
 ; New reset handler which sets vertical mirroring (horrizontal arrangement)
 Reset:
