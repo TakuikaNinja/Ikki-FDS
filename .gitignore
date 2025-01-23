@@ -10,3 +10,9 @@ asm6f
 *.chr
 *.bat
 *.exe
+*.bin
+*.o
+*.cfg
+*.dbg
+*.labels.txt
+*.map.txt

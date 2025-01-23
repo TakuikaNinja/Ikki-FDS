@@ -2,13 +2,10 @@
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; Ikki FDS Port Disk Layout
 ; ----------------------------------------------------------------------------------------------------------------------------------
-; Disk Structure
-	.org $0000
+; Definitions
+.enum
 	INES_HDR = $10 ; size of iNES header
-	FILE equ "Ikki (Japan).nes"
-	
-; ----------------------------------------------------------------------------------------------------------------------------------
-; Disk definitions taken from SMB2J's disassembly
+	PRG_SIZE = $4000
 	DiskInfoBlock     = 1
 	FileAmountBlock   = 2
 	FileHeaderBlock   = 3
@@ -16,89 +13,95 @@
 	PRG = 0
 	CHR = 1
 	VRAM = 2
-	FILE_COUNT = 5
+	FILE_COUNT = 3
+.endenum
+
+.define FILE "Ikki (Japan).nes"
+
+; ----------------------------------------------------------------------------------------------------------------------------------
+; Prepare original dump for patching (see bypass.asm)
+	.segment "ORIGINAL"
+	.incbin FILE, INES_HDR, PRG_SIZE
+
+; Disk Structure
+	.segment "SIDE1A"
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; Disk info + file amount blocks
-	.db DiskInfoBlock
-	.db "*NINTENDO-HVC*"
-	.db 0												; manufacturer
-	.db "RIK "											; game title + space for normal disk
-	.db 0, 0, 0, 0, 0									; game version, side, disk, disk type, unknown
-	.db FILE_COUNT										; boot file count
-	.db $ff, $ff, $ff, $ff, $ff
-	.db $60, $11, $28									; cart release date according to nescartdb (1985/11/28)
-	.db $49, $61, 0, 0, 2, 0, 0, 0, 0, 0				; region stuff
-	.db $99, $11, $09									; use disk write date as date of port release for now
-	.db 0, $80, 0, 0, 7, 0, 0, 0, 0						; unknown data, disk writer serial no., actual disk side, price
+	.byte DiskInfoBlock
+	.byte "*NINTENDO-HVC*"
+	.byte 0												; manufacturer
+	.byte "RIK "										; game title + space for normal disk
+	.byte 0, 0, 0, 0, 0									; game version, side, disk, disk type, unknown
+	.byte FILE_COUNT									; boot file count
+	.byte $ff, $ff, $ff, $ff, $ff
+	.byte $60, $11, $28									; cart release date according to nescartdb (1985/11/28)
+	.byte $49, $61, 0, 0, 2, 0, 0, 0, 0, 0				; region stuff
+	.byte $99, $11, $09									; use disk write date as date of port release for now
+	.byte 0, $80, 0, 0, 7, 0, 0, 0, 0					; unknown data, disk writer serial no., actual disk side, price
 
-	.db FileAmountBlock
-	.db FILE_COUNT
+	.byte FileAmountBlock
+	.byte FILE_COUNT + 1 + 1 ; lie about the file amount so the BIOS keeps seeking
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; PRG
-	.db FileHeaderBlock
-	.db $00, $00
-	.db "IKKIPRGM"
-	.dw $8000
-	.dw prg_length
-	.db PRG
+	.segment "FILE0_HDR"
+	.import __FILE0_DAT_RUN__
+	.import __FILE0_DAT_SIZE__
+	.byte FileHeaderBlock
+	.byte $00, $00
+	.byte "IKKIPRGM"
+	.word __FILE0_DAT_RUN__
+	.word __FILE0_DAT_SIZE__
+	.byte PRG
 	
-	.db FileDataBlock
-	prg_length = $4000 ; 16KiB
-	.incbin FILE, INES_HDR, prg_length
+	.byte FileDataBlock
+	.segment "FILE0_DAT"
+	.incbin "prg.bin"
 	
 ; Entry Point + Interrupt Vectors
-	.db FileHeaderBlock
-	.db $01, $01
-	.db "IKKIVECS"
-	.dw vec
-	.dw vec_length
-	.db PRG
+	.segment "FILE1_HDR"
+	.import __FILE1_DAT_RUN__
+	.import __FILE1_DAT_SIZE__
+	.byte FileHeaderBlock
+	.byte $01, $01
+	.byte "IKKIVECS"
+	.word __FILE1_DAT_RUN__
+	.word __FILE1_DAT_SIZE__
+	.byte PRG
 	
-	.db FileDataBlock
-	old_addr = $
-	.base $df80
-	vec:
-		.include "bypass.asm"
-	vec_length = $ - vec
-	.base old_addr + vec_length
+	.byte FileDataBlock
+	.include "bypass.asm"
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; CHR
-	.db FileHeaderBlock
-	.db $02, $02
-	.db "IKKICHAR"
-	.dw $0000
-	.dw chr_length
-	.db CHR
+	.segment "FILE2_HDR"
+	.import __FILE2_DAT_RUN__
+	.import __FILE2_DAT_SIZE__
+	.byte FileHeaderBlock
+	.byte $02, $02
+	.byte "IKKICHAR"
+	.word __FILE2_DAT_RUN__
+	.word __FILE2_DAT_SIZE__
+	.byte CHR
 	
-	.db FileDataBlock
-	chr_length = $2000 ; 8KiB
-	.incbin FILE, INES_HDR + prg_length, chr_length
+	.byte FileDataBlock
+	.segment "FILE2_DAT"
+	.incbin FILE, INES_HDR + PRG_SIZE, $2000
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
-; kyodaku file
-	.db FileHeaderBlock
-	.db $03, $03
-	.db "-BYPASS-"
-	.dw $2000
-	.dw $0001
-	.db PRG
+; kyodaku bypass file
+	.segment "FILE3_HDR"
+	.import __FILE3_DAT_RUN__
+	.import __FILE3_DAT_SIZE__
+	.byte FileHeaderBlock
+	.byte $03, $03
+	.byte "-BYPASS-"
+	.word __FILE3_DAT_RUN__
+	.word __FILE3_DAT_SIZE__
+	.byte PRG
 
-	.db FileDataBlock
-	.db $90 ; enable NMI byte loaded into PPU control register - bypasses "KYODAKU-" file check
-	
-; this file will never be loaded but it's big enough for an NMI to kick in while seeking the disk
-	.db FileHeaderBlock
-	.db $04, $FF
-	.db "-BYPASS-"
-	.dw $0000
-	.dw $0400
-	.db PRG
-
-	.db FileDataBlock
-	.dsb $0400
-	
-	.pad 65500
+	.byte FileDataBlock
+	.segment "FILE3_DAT"
+	.byte $90 ; enable NMI byte loaded into PPU control register - bypasses "KYODAKU-" file check
 

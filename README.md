@@ -6,14 +6,16 @@ NROM-128 games can often run on the Famicom Disk System with minimal modificatio
 
 This project aims to port one such game, Ikki, to the FDS. The differences from the original game are as follows:
 - Boots and runs on the FDS, bypassing the BIOS' license message check.
-- Applies run-time patches to adjust variables that conflict with $0100~$0103 (FDS BIOS variables).
-- Executes extra code to set the correct nametable mirroring/arrangement on reset.
+- Applies compile-time patches to adjust variables that conflict with $0100~$0103 (FDS BIOS variables).
+- Patches the reset handler at compile-time to set the correct nametable mirroring/arrangement.
 
-It should be noted that the approach taken by this project likely differs from methods used by existing conversions, which may have involved some kind of cartridge-to-disk dumping hardware ("copiers") and a disk file editor (such as Tonkachi Editor).
+Notes:
+- Older versions of this repository used run-time patches.
+- The binary output will differ from existing conversions, which may have involved some kind of cartridge-to-disk dumping hardware ("copiers") and a disk file editor (such as Tonkachi Editor). Such conversions include the license screen.
 
 ## Building
 
-The Makefile builds `ikki.fds` using ASM6f (https://github.com/freem/asm6f) plus the original game dump with an NES2.0 header. Said dump is not provided by this repo for obvious legal reasons. The dump used is the following: 
+The Makefile builds `ikki.fds` using the [CC65 suite](https://cc65.github.io/) plus the original game dump with an NES2.0 header. Said dump is not provided by this repo for obvious legal reasons. The dump used is the following: 
 
 ```
 Database match: Ikki (Japan)
@@ -24,6 +26,10 @@ ROM SHA-1: 83A3ACD2E1C51CAA7E1460963FACC1D96707F230
 ROM CRC32: 821FEB7A
 ```
 
+Notes:
+- `prg.bin` is the patched intermediary file.
+- Older versions of this repository used [ASM6f](https://github.com/freem/asm6f).
+
 ## Acknowledgements
 
 Ikki (C) 1985 Sunsoft (Sun Electronics Corp.) This project is purely for demonstration and educational purposes.
@@ -31,3 +37,4 @@ Ikki (C) 1985 Sunsoft (Sun Electronics Corp.) This project is purely for demonst
 - There is prior work from OffGao, who has a video showcasing a hacked version of Ikki running on the FDS: https://www.nicovideo.jp/watch/sm9020475
 - Mesen (https://www.mesen.ca/) was used for its excellent debugging tools.
 - Hardware testing was done using a Sharp Twin Famicom with the [FDSKey](https://github.com/ClusterM/fdskey).
+
