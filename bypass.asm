@@ -59,13 +59,13 @@ Reset:
 		and #$f7										; and set for vertical mirroring
 		sta FDS_CTRL
 	.db $4c ; JMP Absolute
-	.incbin "Ikki (Japan).nes", INES_HDR + prg_length - 4, 2 ; jump to original reset handler
+	.incbin FILE, INES_HDR + prg_length - 4, 2 ; jump to original reset handler
 
 .org NMI_1
 Vectors:
-	.incbin "Ikki (Japan).nes", INES_HDR + prg_length - 6, 2 ; NMI #1
-	.incbin "Ikki (Japan).nes", INES_HDR + prg_length - 6, 2 ; NMI #2
+	.incbin FILE, INES_HDR + prg_length - 6, 2 ; NMI #1
+	.incbin FILE, INES_HDR + prg_length - 6, 2 ; NMI #2
 	.dw Bypass ; NMI #3, entry point
 	.dw Reset ; reset
-	.incbin "Ikki (Japan).nes", INES_HDR + prg_length - 2, 2 ; IRQ (unused?)
+	.incbin FILE, INES_HDR + prg_length - 2, 2 ; IRQ (unused?)
 

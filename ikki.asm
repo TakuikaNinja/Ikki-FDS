@@ -5,6 +5,7 @@
 ; Disk Structure
 	.org $0000
 	INES_HDR = $10 ; size of iNES header
+	FILE equ "Ikki (Japan).nes"
 	
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; Disk definitions taken from SMB2J's disassembly
@@ -45,7 +46,7 @@
 	
 	.db FileDataBlock
 	prg_length = $4000 ; 16KiB
-	.incbin "Ikki (Japan).nes", INES_HDR, prg_length
+	.incbin FILE, INES_HDR, prg_length
 	
 ; Entry Point + Interrupt Vectors
 	.db FileHeaderBlock
@@ -74,7 +75,7 @@
 	
 	.db FileDataBlock
 	chr_length = $2000 ; 8KiB
-	.incbin "Ikki (Japan).nes", INES_HDR + prg_length, chr_length
+	.incbin FILE, INES_HDR + prg_length, chr_length
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; kyodaku file
