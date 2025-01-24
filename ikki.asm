@@ -13,16 +13,12 @@
 	PRG = 0
 	CHR = 1
 	VRAM = 2
-	FILE_COUNT = 4
+	FILE_COUNT = 3
 .endenum
 
 .define FILE "Ikki (Japan).nes"
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
-; Prepare original dump for patching (see bypass.asm)
-	.segment "ORIGINAL"
-	.incbin FILE, INES_HDR, PRG_SIZE
-
 ; Disk Structure
 	.segment "SIDE1A"
 
@@ -41,7 +37,7 @@
 	.byte 0, $80, 0, 0, 7, 0, 0, 0, 0					; unknown data, disk writer serial no., actual disk side, price
 
 	.byte FileAmountBlock
-	.byte FILE_COUNT + 1 ; lie about the file amount so the BIOS keeps seeking
+	.byte FILE_COUNT + 1 + 1 ; lie about the file amount so the BIOS keeps seeking
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; PRG
@@ -56,8 +52,9 @@
 	.byte PRG
 	
 	.byte FileDataBlock
+	; Prepare original dump for patching (see bypass.asm)
 	.segment "FILE0_DAT"
-	.incbin "prg.bin"
+	.incbin FILE, INES_HDR, PRG_SIZE
 	
 ; Entry Point + Interrupt Vectors
 	.segment "FILE1_HDR"

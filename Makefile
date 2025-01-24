@@ -11,14 +11,10 @@ all: $(OUTPUT)
 $(OUTPUT): $(OBJ_FILES) $(GAME).cfg
 	$(LINKER) -o $(GAME).fds -C $(GAME).cfg $(OBJ_FILES) -m $(GAME).map.txt -Ln $(GAME).labels.txt --dbgfile $(GAME).dbg
 
-$(OBJ_FILES): $(GAME).asm
+$(OBJ_FILES): $(GAME).asm bypass.asm
 
-%.o:%.asm prg.bin
+%.o:%.asm
 	$(ASSEMBLER) $< -g -o $@
-
-# workaround for needing to include a patched binary file in the assembly
-prg.bin:
-	$(file > $@)
 
 .PHONY: clean
 
