@@ -13,8 +13,12 @@ $(OUTPUT): $(OBJ_FILES) $(GAME).cfg
 
 $(OBJ_FILES): $(GAME).asm
 
-%.o:%.asm
+%.o:%.asm prg.bin
 	$(ASSEMBLER) $< -g -o $@
+
+# workaround for needing to include a patched binary file in the assembly
+prg.bin:
+	$(file > $@)
 
 .PHONY: clean
 

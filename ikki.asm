@@ -13,7 +13,7 @@
 	PRG = 0
 	CHR = 1
 	VRAM = 2
-	FILE_COUNT = 3
+	FILE_COUNT = 4
 .endenum
 
 .define FILE "Ikki (Japan).nes"
@@ -41,7 +41,7 @@
 	.byte 0, $80, 0, 0, 7, 0, 0, 0, 0					; unknown data, disk writer serial no., actual disk side, price
 
 	.byte FileAmountBlock
-	.byte FILE_COUNT + 1 + 1 ; lie about the file amount so the BIOS keeps seeking
+	.byte FILE_COUNT + 1 ; lie about the file amount so the BIOS keeps seeking
 
 ; ----------------------------------------------------------------------------------------------------------------------------------
 ; PRG
