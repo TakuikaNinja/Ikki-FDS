@@ -1,5 +1,6 @@
 .enum
-	PPUCTRL = $2000
+	PPU_CTRL = $2000
+	PPU_STATUS = $2002
 	NMI_3 = $dffa
 	RST_FLAG = $0102
 	RST_TYPE = $0103
@@ -11,7 +12,7 @@
 .segment "FILE0_DAT"
 Bypass:
 		lda #$00										; disable NMIs since we don't need them anymore
-		sta PPUCTRL
+		sta PPU_CTRL
 		
 		lda Vectors										; put real NMI handler in NMI vector 3
 		sta NMI_3
@@ -51,8 +52,14 @@ Bypass:
 .segment "POINTER_PATCHA"
 	.byte $20
 
-; Patch reset handler to set horrizontal arrangement (vertical mirroring)
+; Patch reset handler to CLI and set horrizontal arrangement (vertical mirroring)
 .segment "RESET_PATCH"
+		cli
+		lda #$00
+		sta PPU_CTRL
+:
+		lda PPU_STATUS
+		bpl :-
 		lda #$26
 		sta FDS_CTRL
 
